@@ -7,6 +7,14 @@ const { Mime } = require("mime/lite");
 const { default: standardMimeTypes } = require("mime/types/standard.js");
 const fs = { ...require("fs"), ...require("fs/promises") };
 
+/**
+ * @template T
+ * @param {T} v
+ */
+function i(v) {
+    return /** @type {NonNullable<T>} */ (v);
+}
+
 const createWindow = () => {
     const win = new electron.BrowserWindow({
         width: 800,
@@ -44,7 +52,9 @@ electron.app.whenReady().then(async () => {
         if (u.protocol === "http:" && u.host === `127.0.0.1:${serverPort}`) {
             return fetch(req);
         }
+
         console.log("INTERCEPTION:: ", req.url);
+
         const filePath = `third_party/${u.href
             .replace(/^https?:\/\/|^\/\//, "")
             .replace(/\/$/, "")
@@ -52,6 +62,7 @@ electron.app.whenReady().then(async () => {
             .map((p) => p.replace(/["<>\|:\*\?\\\/ \x00-\x1f]/g, "_"))
             .join("/")}`;
         const filePathAbs = path.join(__dirname, filePath);
+
         if (!fs.existsSync(filePathAbs)) {
             console.log("               ", "Downloading...");
             fs.mkdir(path.dirname(filePathAbs), { recursive: true });
@@ -73,6 +84,7 @@ electron.app.whenReady().then(async () => {
                     /** @type {import('stream/web').ReadableStream<Uint8Array>} */ (resp.body)
                 );
                 readStream.pipe(fileStream);
+
                 try {
                     await new Promise((res, rej) => {
                         readStream.on("end", res);
@@ -89,6 +101,7 @@ electron.app.whenReady().then(async () => {
                 }
             }
         }
+
         return fetch(`http://127.0.0.1:${serverPort}/${filePath}`);
     };
 
@@ -123,15 +136,24 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    /** @type {import('fs').ReadStream | undefined} */
+    let fileStream;
     try {
-        const content = await fs.readFile(filePathAbs);
+        fileStream = fs.createReadStream(filePathAbs);
+
         res.writeHead(200, {
             "content-type":
                 specialMimes[filePath.replace(/^\//, "")] ??
                 mime.getType(filePathAbs) ??
                 "application/octet-stream",
         });
-        res.end(content);
+
+        fileStream.pipe(res);
+
+        await new Promise((/** @type {(value: void) => void} */ res, rej) => {
+            i(fileStream).on("end", res);
+            i(fileStream).on("error", rej);
+        });
     } catch (err) {
         if (err.code === "ENOENT") {
             res.writeHead(404);
@@ -141,6 +163,8 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500);
             res.end(`error reading file ${filePathAbs}`);
         }
+    } finally {
+        fileStream?.close();
     }
 });
 
