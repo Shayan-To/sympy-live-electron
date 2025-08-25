@@ -25,9 +25,6 @@ const specialMimes = fs.existsSync(specialMimesFile)
     ? JSON.parse(fs.readFileSync(specialMimesFile, { encoding: "utf-8" }))
     : {};
 
-// /** @type {{[header: string]: Set<string>}} */
-// const headers = {};
-
 electron.app.whenReady().then(async () => {
     while (!serverReady) {
         await new Promise((r) => setTimeout(r, 100));
@@ -43,101 +40,6 @@ electron.app.whenReady().then(async () => {
 
     /** @type {Parameters<typeof electron.protocol.handle>[1]} */
     const interceptor = async (req) => {
-        // const resO = await fetch(req);
-        // const res = new Response(await resO.arrayBuffer(), {
-        //     headers: new Headers(resO.headers),
-        //     status: resO.status,
-        // });
-
-        // [
-        //     "accept-ranges",
-        //     "access-control-allow-headers",
-        //     "access-control-allow-methods",
-        //     "access-control-allow-origin",
-        //     "access-control-expose-headers",
-        //     "access-control-max-age",
-        //     "age",
-        //     "alt-svc",
-        //     "cache-control",
-        //     "cdn-cache",
-        //     "cdn-cachedat",
-        //     "cdn-edgestorageid",
-        //     "cdn-proxyver",
-        //     "cdn-pullzone",
-        //     "cdn-requestcountrycode",
-        //     "cdn-requestid",
-        //     "cdn-requestpullcode",
-        //     "cdn-requestpullsuccess",
-        //     "cdn-requesttime",
-        //     "cdn-status",
-        //     "cdn-uid",
-        //     "cf-cache-status",
-        //     "cf-ray",
-        //     "connection",
-        //     "content-security-policy",
-        //     "content-security-policy-report-only",
-        //     "cross-origin-opener-policy",
-        //     "cross-origin-resource-policy",
-        //     "date",
-        //     "etag",
-        //     "expires",
-        //     "fastly-restarts",
-        //     "keep-alive",
-        //     "last-modified",
-        //     "link",
-        //     "permissions-policy",
-        //     "referrer-policy",
-        //     "report-to",
-        //     "server",
-        //     "strict-transport-security",
-        //     "timing-allow-origin",
-        //     "transfer-encoding",
-        //     "vary",
-        //     "x-amz-id-2",
-        //     "x-amz-request-id",
-        //     "x-amz-server-side-encryption",
-        //     "x-amz-version-id",
-        //     "x-cache",
-        //     "x-cache-hits",
-        //     "x-content-type-options",
-        //     "x-frame-options",
-        //     "x-jsd-version",
-        //     "x-jsd-version-type",
-        //     "x-permitted-cross-domain-policies",
-        //     "x-robots-header",
-        //     "x-served-by",
-        //     "x-timer",
-        //     "x-xss-protection",
-
-        //     "x-pypi-file-package-type",
-        //     "x-pypi-file-project",
-        //     "x-pypi-file-python-version",
-        //     "x-pypi-file-version",
-        //     "x-pypi-last-serial",
-        // ].forEach((h) => res.headers.delete(h));
-
-        // res.headers.forEach((v, k) => {
-        //     headers[k] ??= new Set();
-        //     headers[k].add(v);
-        // });
-
-        // fs.writeFile(
-        //     "./headers.json",
-        //     JSON.stringify(
-        //         Object.fromEntries(
-        //             Object.keys(headers)
-        //                 .sort()
-        //                 .map((k) => [k, [...headers[k]]])
-        //         ),
-        //         undefined,
-        //         "    "
-        //     )
-        // );
-
-        // fs.appendFile("./content-type.txt", `${req.url.replace(/.*\//, '')}  ${res.headers.get('content-type')}\n`);
-
-        // return res;
-
         const u = new URL(req.url);
         if (u.protocol === "http:" && u.host === `127.0.0.1:${serverPort}`) {
             return fetch(req);
