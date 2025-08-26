@@ -136,6 +136,24 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    f = undefined;
+    try {
+        f = await fs.open(filePathAbs, "r");
+        await f.read(Buffer.alloc(1));
+    } catch (err) {
+        if (err.code === "ENOENT") {
+            res.writeHead(404);
+            res.end();
+        } else {
+            console.log("unexpected error", err);
+            res.writeHead(500);
+            res.end();
+        }
+        return;
+    } finally {
+        await f?.close();
+    }
+
     /** @type {import('fs').ReadStream | undefined} */
     let fileStream;
     try {
@@ -155,14 +173,9 @@ const server = http.createServer(async (req, res) => {
             i(fileStream).on("error", rej);
         });
     } catch (err) {
-        if (err.code === "ENOENT") {
-            res.writeHead(404);
-            res.end();
-        } else {
-            console.log("unexpected error", err.constructor, err);
-            res.writeHead(500);
-            res.end(`error reading file ${filePathAbs}`);
-        }
+        console.log("unexpected error", err);
+        res.writeHead(500);
+        res.end();
     } finally {
         fileStream?.close();
     }
