@@ -13,6 +13,7 @@ Build instructions:
     - `pipx run unvendor_tests_from_wheel.py custom_wheels/`
     - `jupyter lite build`
     - `pipx run generate_index.py`
+- `cd _output`
 - `cp -rf ../../electrostatic/* .` (Pwsh: `cp -Recurse -Force ..\..\electrostatic\* .`)
 - `yarn`
 - `yarn start`
