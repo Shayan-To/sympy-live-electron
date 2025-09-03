@@ -71,10 +71,20 @@ init_printing()
     $('#live-iframe').prop("src", `/repl?${params}`);
     $('#live-iframe').on('load', async () => {
         await new Promise(res => setTimeout(res, 10 * 1000));
-        const iframe = document.querySelector('#live-iframe');
-        iframe.height = '100%';
+        toggleFullScreen();
+        document.querySelector('#fs-btn').style.display = 'unset';
     });
   });
+
+  let isFullScreen = false;
+  function toggleFullScreen() {
+    isFullScreen = !isFullScreen;
+    /** @type {HTMLIFrameElement} */
+    const iframe = document.querySelector('#live-iframe');
+    iframe.height = isFullScreen ? '100%' : '800px';
+    iframe.style.position = isFullScreen ? 'fixed' : 'unset';
+    document.documentElement.style.overflow = isFullScreen ? 'hidden' : 'unset';
+  }
 </script>
 
 <!--  # jupyter-config-data
@@ -88,6 +98,21 @@ init_printing()
 
   </head>
   <body>
+    <button
+      id="fs-btn"
+      onclick="toggleFullScreen()"
+      style="
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 10000;
+          margin: auto;
+          width: 3em;
+          background: #ddd;
+      ">🔲</button>
+
     <div class="container">
       <header>
         <h1><a href="index.html"> <img src="/static/images/logo.png" alt="SymPy Logo" /> SymPy Live Shell</a></h1>
