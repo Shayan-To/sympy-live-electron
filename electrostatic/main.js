@@ -15,14 +15,28 @@ function i(v) {
     return /** @type {NonNullable<T>} */ (v);
 }
 
-const createWindow = () => {
-    const win = new electron.BrowserWindow({
+/** @type {import('electron/main').BrowserWindow | undefined} */
+let window;
+
+function createWindow() {
+    window = new electron.BrowserWindow({
         width: 800,
         height: 1000,
     });
 
-    win.loadURL(`http://127.0.0.1:${serverPort}`);
-};
+    window.loadURL(`http://127.0.0.1:${serverPort}`);
+}
+
+if (!electron.app.requestSingleInstanceLock()) {
+    electron.app.quit();
+} else {
+    electron.app.on("second-instance", () => {
+        if (window?.isMinimized()) {
+            window.restore();
+        }
+        window?.focus();
+    });
+}
 
 electron.app.commandLine.appendSwitch("no-proxy-server");
 electron.app.commandLine.appendSwitch("host-resolver-rules", "MAP * 127.0.0.1");
