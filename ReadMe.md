@@ -15,7 +15,8 @@ Build instructions:
     - `pipx run generate_index.py`
 - `cd _output`
 - `cp -rf ../../electrostatic/* .` (Pwsh: `cp -Recurse -Force ..\..\electrostatic\* .`)
+- `cp -rf ../../sympy-live-extras/* .` (Pwsh: `cp -Recurse -Force ..\..\sympy-live-extras\* .`)
 - `yarn`
 - `yarn start`
 - Explore all pages you want to be accessible.
-- `yarn package`
+- `yarn make`
